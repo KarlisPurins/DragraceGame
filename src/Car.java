@@ -1,3 +1,4 @@
+
 public class Car {
 //topSpeed, acceleration, name, cost, 
 
@@ -5,10 +6,10 @@ public class Car {
 	double acceleration;
 	String name;
 	
-	public Car(int gtopSpeed, double gacceleration, String gname, int gcost) {
-		this.topSpeed = gtopSpeed;
-		this.acceleration = gacceleration;
+	public Car(String gname, double gacceleration, int gtopSpeed, int gcost) {
 		this.name = gname;
+		this.acceleration = gacceleration;
+		this.topSpeed = gtopSpeed;
 		this.cost = gcost;
 	}
 	
@@ -17,6 +18,6 @@ public class Car {
 	}
 	
 	public String toString() {
-		return this.topSpeed + " " + this.acceleration + " " + this.name + " " + this.cost;
+		return "	" + this.name + "	" + this.acceleration + "	" + this.topSpeed + "	" + this.cost + " $";
 	}
 }
