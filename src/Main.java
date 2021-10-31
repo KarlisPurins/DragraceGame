@@ -64,15 +64,16 @@ public class Main {
 				break;
 			case 3:	//Race menu
 				_RaceMenu();
-				int raceMenuValue = menuInput.nextInt(); //Value for level
+				int levelSelectValue = menuInput.nextInt(); //Value for level
 				boolean _RaceMenuPlay = true;
-				if(scannedValue >= 1) {
+				if(levelSelectValue >= 1) {
+					
 					while (_RaceMenuPlay) {
 						 //level value for math to calculate BET size
-						level(raceMenuValue);
-						scannedValue = menuInput.nextInt();
-						if(scannedValue >= 1) {
-							_RaceBETs(scannedValue, raceMenuValue);
+						level(levelSelectValue);
+						int levelSelectedValue = menuInput.nextInt();
+						if(levelSelectedValue >= 1) {
+							_RaceBETs(scannedValue, levelSelectedValue);
 							scannedValue = menuInput.nextInt();
 						}
 						if(scannedValue == 0) {
