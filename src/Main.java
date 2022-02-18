@@ -6,8 +6,9 @@ import java.util.Scanner;
 
 public class Main {
 	
-	ArrayList<Car> carsInGarage = new ArrayList<Car>();
-	int money = 10000;
+	
+	static ArrayList<Car> carsInGarage = new ArrayList<Car>();
+	static int money = 10000;
 	
 	
 	public static void main(String[] args) {
@@ -35,8 +36,7 @@ public class Main {
 
 			switch (scannedValue) {
 			case 1:	//Garage menu
-				_GarageBeforeOwnedCarList(); 
-				_GarageAfterOwnedCarList(); 
+				garageShowCars();
 				scannedValue = menuInput.nextInt();
 				switch (scannedValue) {
 				case 1:
@@ -56,6 +56,15 @@ public class Main {
 				_MarketplaceAfterAviableCarList(); 
 				scannedValue = menuInput.nextInt();
 				switch (scannedValue) {
+				case 1:
+					buyCar(car2);
+					break;
+				case 2:
+					buyCar(car3);
+					break;
+				case 3:
+					buyCar(car4);
+					break;
 				case 4:
 					break;
 				default:
@@ -67,7 +76,6 @@ public class Main {
 				int levelSelectValue = menuInput.nextInt(); //Value for level
 				boolean _RaceMenuPlay = true;
 				if(levelSelectValue >= 1) {
-					
 					while (_RaceMenuPlay) {
 						 //level value for math to calculate BET size
 						level(levelSelectValue);
@@ -97,6 +105,18 @@ public class Main {
 	
 	
 	
+	public static void garageShowCars() {
+		_GarageBeforeOwnedCarList();
+		if(carsInGarage.size() != 0) {
+			int i=1;
+			for(Car car: carsInGarage) {
+				car.printInGarage(i);
+				i++;
+			}
+		}
+		_GarageAfterOwnedCarList(); 
+	}
+	
 	public static void _GarageBeforeOwnedCarList() {
 		System.out.println();
 		System.out.println("=========================================");
@@ -123,6 +143,21 @@ public class Main {
 		System.out.println("-----------------------------------------");
 		System.out.println("0 -> Back");
 		System.out.println();
+	}
+	
+	private static void buyCar(Car car) {
+		if(money >= car.cost) {
+			System.out.println("Purchase successful! :)");
+			car.cost /= 2;
+			carsInGarage.add(car);
+			money -= car.cost;
+		}else {
+			System.out.println("Not enough money... :(");
+		}
+	}
+	
+	private static void sellCar(int index) {
+		carsInGarage.remove(index);
 	}
 	
 	public static void _RaceMenu() {

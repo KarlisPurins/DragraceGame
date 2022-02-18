@@ -20,4 +20,8 @@ public class Car {
 	public String toString() {
 		return "	" + this.name + "	" + this.acceleration + "	" + this.topSpeed + "	" + this.cost + " $";
 	}
+	
+	public void printInGarage(int i) {
+		System.out.println(i+"	"+ this.name +"	"+ this.acceleration +"	"+ this.topSpeed + "     "+ this.cost + " $");
+	}
 }
