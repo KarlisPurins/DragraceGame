@@ -8,6 +8,7 @@ public class Main {
 	
 	
 	static ArrayList<Car> carsInGarage = new ArrayList<Car>();
+	static ArrayList<Car> carsInMarketplace = new ArrayList<Car>();
 	static int money = 10000;
 	
 	
@@ -24,76 +25,70 @@ public class Main {
 		boolean play = true;
 		
 		while (play) {
+			mainMenuUI();
 			
-			System.out.println();
-			System.out.println("Write number in -=console=- for choosen category");
-			System.out.println("1 -> Garage");
-			System.out.println("2 -> Marketplace");
-			System.out.println("3 -> Race");
-			System.out.println("0 -> Exit");
-			System.out.println();
 			int scannedValue = menuInput.nextInt();
 
 			switch (scannedValue) {
 			case 1:	//Garage menu
 				garageShowCars();
 				scannedValue = menuInput.nextInt();
-				switch (scannedValue) {
-				case 1:
-					break;
-				default:
-					break;
+				if(scannedValue == 0) {
+					continue; //Go back to MainMenu
+				}else {
+					inGarageChosenCarMenu(menuInput, scannedValue); //do stuff with chosen car
 				}
 				break;
 			case 2:	//Marketplace menu
-				Car car2 = new Car("Subaru", Math.round((rnd.nextDouble()*10+7)*10.0)/10.0, rnd.nextInt(30)+150, rnd.nextInt(2000)+2000);
-				Car car3 = new Car("Volvo", Math.round((rnd.nextDouble()*10+7)*10.0)/10.0, rnd.nextInt(30)+150, rnd.nextInt(2000)+2000);
-				Car car4 = new Car("AUDI", Math.round((rnd.nextDouble()*10+7)*10.0)/10.0, rnd.nextInt(30)+150, rnd.nextInt(2000)+2000);
+				createCars(rnd);
 				_MarketplaceBeforeAviableCarList();
-				System.out.println("1 " + car2.toString());
-				System.out.println("2 " + car3.toString());
-				System.out.println("3 " + car4.toString());
+				for(int i=0; i<carsInMarketplace.size(); i++) { //Show all cars in Marketplace
+					System.out.println(i+1+ " " + carsInMarketplace.get(i).toString());
+				}
 				_MarketplaceAfterAviableCarList(); 
 				scannedValue = menuInput.nextInt();
 				switch (scannedValue) {
 				case 1:
-					buyCar(car2);
+					buyCar(carsInMarketplace.get(0));
+					carsInMarketplace.clear();
 					break;
 				case 2:
-					buyCar(car3);
+					buyCar(carsInMarketplace.get(1));
+					carsInMarketplace.clear();
 					break;
 				case 3:
-					buyCar(car4);
-					break;
-				case 4:
+					buyCar(carsInMarketplace.get(2));
+					carsInMarketplace.clear();
 					break;
 				default:
+					carsInMarketplace.clear();
 					break;
 				}
 				break;
 			case 3:	//Race menu
-				_RaceMenu();
+				_RaceMenuUI();
 				int levelSelectValue = menuInput.nextInt(); //Value for level
-				boolean _RaceMenuPlay = true;
-				if(levelSelectValue >= 1) {
+				if(levelSelectValue >= 1) { //Selects level
+					boolean _RaceMenuPlay = true;
 					while (_RaceMenuPlay) {
 						 //level value for math to calculate BET size
-						level(levelSelectValue);
-						int levelSelectedValue = menuInput.nextInt();
-						if(levelSelectedValue >= 1) {
-							_RaceBETs(scannedValue, levelSelectedValue);
+						levelUI(levelSelectValue);
+						int raceTypeSelect = menuInput.nextInt();
+						if(raceTypeSelect >= 1) {
+							_RaceBETs(scannedValue, levelSelectValue);
 							scannedValue = menuInput.nextInt();
-						}
-						if(scannedValue == 0) {
+						}else {
 							_RaceMenuPlay = false;
+							//levelSelectedValue = 0;
 						}
 					}
 				}else //input to go back to Main Menu
 					break;
 				
-			case 4:
+			case 0:
 				System.out.println();
-				System.out.println("0 -> Exit");
+				System.out.println("Thank You for playing!");
+				System.out.println("Goodbye!");
 				play = false;
 				break;
 			default:
@@ -103,7 +98,16 @@ public class Main {
 		menuInput.close();
 	}
 	
-	
+	private static void mainMenuUI() {
+		System.out.println();
+		System.out.println("Write number in -=console=- for choosen category");
+		System.out.println("Your money: " + money);
+		System.out.println("1 -> Garage");
+		System.out.println("2 -> Marketplace");
+		System.out.println("3 -> Race");
+		System.out.println("0 -> Exit Game");
+		System.out.println();
+	}
 	
 	public static void garageShowCars() {
 		_GarageBeforeOwnedCarList();
@@ -131,6 +135,29 @@ public class Main {
 		System.out.println();
 	}
 	
+	private static void inGarageChosenCarMenu(Scanner scan, int givenInput) {
+		System.out.println("Selected car:");
+		System.out.println("#	Name	Acc	Speed	Price");
+		carsInGarage.get(givenInput-1).printInGarage(givenInput);
+		System.out.println();
+		System.out.println("1 -> Sell it");
+		System.out.println("0 -> Back");
+		int scannedValue = scan.nextInt();
+		if(scannedValue == 1) {
+			sellCar(givenInput-1);
+		}
+	}
+	
+	private static void createCars(Random rnd) {
+		Car car1 = new Car("Subaru", Math.round((rnd.nextDouble()*10+7)*10.0)/10.0, rnd.nextInt(30)+150, rnd.nextInt(2000)+2000);
+		Car car2 = new Car("Volvo", Math.round((rnd.nextDouble()*10+7)*10.0)/10.0, rnd.nextInt(30)+150, rnd.nextInt(2000)+2000);
+		Car car3 = new Car("AUDI", Math.round((rnd.nextDouble()*10+7)*10.0)/10.0, rnd.nextInt(30)+150, rnd.nextInt(2000)+2000);
+		carsInMarketplace.add(car1);
+		carsInMarketplace.add(car2);
+		carsInMarketplace.add(car3);
+	}
+	
+	
 	public static void _MarketplaceBeforeAviableCarList() {
 		System.out.println();
 		System.out.println("=========================================");
@@ -141,26 +168,29 @@ public class Main {
 	}
 	public static void _MarketplaceAfterAviableCarList() {
 		System.out.println("-----------------------------------------");
+		System.out.println("Enter number of car to buy it");
 		System.out.println("0 -> Back");
 		System.out.println();
 	}
 	
+	
 	private static void buyCar(Car car) {
 		if(money >= car.cost) {
 			System.out.println("Purchase successful! :)");
-			car.cost /= 2;
-			carsInGarage.add(car);
 			money -= car.cost;
+			car.costReductionAfterBuying();
+			carsInGarage.add(car);
 		}else {
 			System.out.println("Not enough money... :(");
 		}
 	}
 	
 	private static void sellCar(int index) {
+		money += carsInGarage.get(index).cost;
 		carsInGarage.remove(index);
 	}
 	
-	public static void _RaceMenu() {
+	public static void _RaceMenuUI() {
 		System.out.println();
 		System.out.println("=========================================");
 		System.out.println("		Race");
@@ -178,7 +208,7 @@ public class Main {
 		
 	}
 	
-	public static void level(int chosenLevel) {
+	public static void levelUI(int chosenLevel) {
 		System.out.println();
 		System.out.println("=========================================");
 		System.out.println("		Level " + chosenLevel);
