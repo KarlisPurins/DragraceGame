@@ -9,22 +9,31 @@ public class Main {
 	
 	static ArrayList<Car> carsInGarage = new ArrayList<Car>();
 	static ArrayList<Car> carsInMarketplace = new ArrayList<Car>();
-	static int money = 10000;
+	static int money = 5000;
 	
 	
 	public static void main(String[] args) {
-		
 		
 		int _RaceDifficultyLevel;
 		int _NumberOfOWnedCars = 2;
 		Scanner menuInput = new Scanner(System.in);
 		Random rnd = new Random ();
 		
-		
+		startupUI();
 		
 		boolean play = true;
-		
 		while (play) {
+			if(money <= 0 && carsInGarage.size() == 0) {
+				System.out.println("You lost the game...");
+				System.out.println("Good luck next time! :)");
+				break;
+			}
+			if(money >= 10000) {
+				System.out.println("You won the game...");
+				System.out.println("You must do it again! :|");
+				System.out.println("Good luck! :)");
+				break;
+			}
 			mainMenuUI();
 			
 			int scannedValue = menuInput.nextInt();
@@ -50,7 +59,7 @@ public class Main {
 				switch (scannedValue) {
 				case 1:
 					buyCar(carsInMarketplace.get(0));
-					carsInMarketplace.clear();
+					carsInMarketplace.clear(); 
 					break;
 				case 2:
 					buyCar(carsInMarketplace.get(1));
@@ -66,6 +75,14 @@ public class Main {
 				}
 				break;
 			case 3:	//Race menu
+				if(carsInGarage.size() == 0) {
+					System.out.println("You have no cars to race with... :(");
+					break;
+				}
+				Car selectedCar = selectCarForRacing(menuInput);
+				if(selectedCar.name == "noname") {
+					break;
+				}
 				_RaceMenuUI();
 				int levelSelectValue = menuInput.nextInt(); //Value for level
 				if(levelSelectValue >= 1) { //Selects level
@@ -75,16 +92,55 @@ public class Main {
 						levelUI(levelSelectValue);
 						int raceTypeSelect = menuInput.nextInt();
 						if(raceTypeSelect >= 1) {
-							_RaceBETs(scannedValue, levelSelectValue);
-							scannedValue = menuInput.nextInt();
+							int[] betArray = _RaceBETs(raceTypeSelect, levelSelectValue);
+							int betSelectedValue = menuInput.nextInt();
+							if(betSelectedValue == 0) { //Check if pressed "Go back" while selecting BET
+								continue;
+							}
+							while(betArray[betSelectedValue-1] > money) {
+								System.out.println("Not enough money... Choose diferent bet or go back");
+								betSelectedValue = menuInput.nextInt();
+								if(betSelectedValue == 0) {
+									break;
+								}
+								System.out.println("Not enough money...");
+								betArray = _RaceBETs(raceTypeSelect, levelSelectValue);
+							}
+							if(betSelectedValue == 0) { //Check if pressed "Go back" while selecting BET
+								continue;
+							}
+							if(raceTypeSelect == 1) {
+								if(Racing._800mRace(selectedCar, createEnemyCar(levelSelectValue, rnd))) {
+									money += betArray[betSelectedValue-1];
+								}else {
+									money -= betArray[betSelectedValue-1];
+								}
+							}else {
+								if(Racing._400mRace(selectedCar, createEnemyCar(levelSelectValue, rnd))){
+									money += betArray[betSelectedValue-1];
+								}else {
+									money -= betArray[betSelectedValue-1];
+								}
+							}
+							
 						}else {
 							_RaceMenuPlay = false;
 							//levelSelectedValue = 0;
 						}
 					}
-				}else //input to go back to Main Menu
-					break;
-				
+				}else {
+					continue;
+				}
+				break;
+			case 9: //For testing purposes
+				money -= 100;
+				break;
+			case 99: //For testing purposes
+				money -= 1000;
+				break;
+			case 90: //For testing purposes
+				money += 1000;
+				break;
 			case 0:
 				System.out.println();
 				System.out.println("Thank You for playing!");
@@ -98,6 +154,35 @@ public class Main {
 		menuInput.close();
 	}
 	
+	private static Car createEnemyCar(int levelSelectValue, Random rnd) {
+		//Future: Enemy car power is different for each level selected
+		return new Car("Subaru", Math.round((rnd.nextDouble()*10+7)*10.0)/10.0, rnd.nextInt(30)+150, rnd.nextInt(2000)+2000);
+	}
+
+	private static Car selectCarForRacing(Scanner input) {
+		Car selectedCar;
+		System.out.println("Select car for racing:");
+		int i=1;
+		for(Car car: carsInGarage) {
+			car.printInGarage(i);
+			i++;
+		}
+		System.out.println("0 -> Back");
+		int inputInt = input.nextInt();
+		if(inputInt == 0) {
+			return new Car("noname", 0.0, 0, 0);
+		}
+		while(inputInt < 0 || inputInt > carsInGarage.size()) {
+			System.out.println("Wrong input");
+			inputInt = input.nextInt();
+			if(inputInt == 0) {
+				return new Car("noname", 0.0, 0, 0);
+			}
+		}
+		selectedCar = carsInGarage.get(inputInt-1);
+		return selectedCar;
+	}
+
 	private static void mainMenuUI() {
 		System.out.println();
 		System.out.println("Write number in -=console=- for choosen category");
@@ -109,7 +194,7 @@ public class Main {
 		System.out.println();
 	}
 	
-	public static void garageShowCars() {
+	private static void garageShowCars() {
 		_GarageBeforeOwnedCarList();
 		if(carsInGarage.size() != 0) {
 			int i=1;
@@ -117,11 +202,13 @@ public class Main {
 				car.printInGarage(i);
 				i++;
 			}
+		}else {
+			System.out.println("No cars in garage...");
 		}
 		_GarageAfterOwnedCarList(); 
 	}
 	
-	public static void _GarageBeforeOwnedCarList() {
+	private static void _GarageBeforeOwnedCarList() {
 		System.out.println();
 		System.out.println("=========================================");
 		System.out.println("		Garage");
@@ -129,7 +216,7 @@ public class Main {
 		System.out.println("#	Name	Acc	Speed	Price");
 		System.out.println();
 	}
-	public static void _GarageAfterOwnedCarList() {
+	private static void _GarageAfterOwnedCarList() {
 		System.out.println("-----------------------------------------");
 		System.out.println("0 -> Back");
 		System.out.println();
@@ -158,7 +245,7 @@ public class Main {
 	}
 	
 	
-	public static void _MarketplaceBeforeAviableCarList() {
+	private static void _MarketplaceBeforeAviableCarList() {
 		System.out.println();
 		System.out.println("=========================================");
 		System.out.println("		Marketplace");
@@ -166,7 +253,7 @@ public class Main {
 		System.out.println("#	Name	Acc	Speed	Price");
 		System.out.println();
 	}
-	public static void _MarketplaceAfterAviableCarList() {
+	private static void _MarketplaceAfterAviableCarList() {
 		System.out.println("-----------------------------------------");
 		System.out.println("Enter number of car to buy it");
 		System.out.println("0 -> Back");
@@ -190,7 +277,7 @@ public class Main {
 		carsInGarage.remove(index);
 	}
 	
-	public static void _RaceMenuUI() {
+	private static void _RaceMenuUI() {
 		System.out.println();
 		System.out.println("=========================================");
 		System.out.println("		Race");
@@ -208,7 +295,7 @@ public class Main {
 		
 	}
 	
-	public static void levelUI(int chosenLevel) {
+	private static void levelUI(int chosenLevel) {
 		System.out.println();
 		System.out.println("=========================================");
 		System.out.println("		Level " + chosenLevel);
@@ -217,23 +304,40 @@ public class Main {
 		System.out.println("1 -> 1/2 mile race");
 		System.out.println("2 -> 1/4 mile race");
 		System.out.println("-----------------------------------------");
-		System.out.println("0 -> Back to Level Menu");
+		System.out.println("0 -> Back to Main Menu");
 		System.out.println();
 		
 	}
 	
-	public static void _RaceBETs(int _RaceType, int _DifficultyCoefficient) {
+	private static int[] _RaceBETs(int _RaceType, int _DifficultyCoefficient) {
+		int[] betArray = new int[5];
 		System.out.println();
 		System.out.println("=========================================");
 		System.out.println("		1/" + _RaceType*2 + " mile race");
 		System.out.println("-----------------------------------------");
 		System.out.println("		Choose Your BET");
-		for (int i = 1; i < 5; i++) {
-			System.out.println(i + " -> " + Math.round(i*200*_DifficultyCoefficient*0.69) + " $");
+		for (int i = 0; i < 5; i++) {
+			int bet = (int) Math.round(i*200*_DifficultyCoefficient*0.69);
+			betArray[i] = bet;
+			System.out.println((i+1) + " -> " + bet + " $");
 		}
 		System.out.println("-----------------------------------------");
 		System.out.println("0 -> Back");
 		System.out.println();
+		return betArray;
+	}
+	
+	private static void startupUI(){
+		System.out.println("Welcome to Dragrace Game where everything is possible (not everything, just dragracing)");
+		System.out.println("In this wonderous world you have only one target:");
+		System.out.println("You must get 10000 money to win this game.");
+		System.out.println("Lost all money and cars? You lose.");
+		System.out.println("In Garage you can see all your cars and you can sell them for minor money.");
+		System.out.println("In Marketplace you shall buy your dream car which will take you to the moon and back. ;)");
+		System.out.println("In Race you choose a car to race with, then difficulty level (bigger difficulty = bigger yields)");
+		System.out.println("After Level you choose Race type - 1/2 mile or 1/4 mile");
+		System.out.println("Finally you choose a bet you want to put on your victory and hope for the best RNG luck you could ever have.");
+		System.out.println("Good luck, have fun! <3");
 	}
 	
 }
